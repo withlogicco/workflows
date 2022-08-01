@@ -7,7 +7,7 @@ permissions:
   pull-requests: write
 
 on:
-  worklflow_call:
+  workflow_call:
     inputs:
       iam_role:
         required: true
