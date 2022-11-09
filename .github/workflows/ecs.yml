@@ -1,0 +1,49 @@
+name: Deploy to ECS
+
+on: 
+  workflow_call:
+    inputs:
+      iam_role:
+        required: true
+        type: string
+      region:
+        required: false
+        type: string
+        default: us-east-1
+      ecs-cluster:
+        required: true
+        type: string
+      files:
+        required: false
+        type: string
+        default: docker-compose.yml:docker-compose.ecs.yml
+      env:
+        required: false
+        type: string
+        default: ''
+env:
+  GIT_SHA: ${{ github.sha }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: echo ${{ inputs.env }} >> $GITHUB_ENV
+    - uses: docker/setup-buildx-action@v2
+    - uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ inputs.iam_role }}
+        role-session-name: withlogicco-workflows-ecs-${{ github.run_id }}
+        aws-region: ${{ inputs.region }}
+    - uses: docker/login-action@v1
+      with:
+        registry: ${{ inputs.ecr-registry }}
+    - uses: withlogicco/setup-compose-cli@v1
+    - run: docker context create ecs aws --from-env
+    - run: docker --context=aws compose --file ${{ inputs.files }} up
