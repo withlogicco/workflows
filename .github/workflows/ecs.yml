@@ -13,6 +13,9 @@ on:
       ecs-cluster:
         required: true
         type: string
+      ecr-registry:
+        required: true
+        type: string
       files:
         required: false
         type: string
