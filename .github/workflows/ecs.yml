@@ -30,9 +30,11 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
-
+  ecs:
+    name: ECS
     runs-on: ubuntu-latest
+    env:
+      COMPOSE_FILE: ${{ inputs.files }}
     steps:
     - uses: actions/checkout@v3
     - run: echo '${{ inputs.env }}' >> $GITHUB_ENV
@@ -47,4 +49,6 @@ jobs:
         registry: ${{ inputs.ecr-registry }}
     - uses: withlogicco/setup-compose-cli@v1
     - run: docker context create ecs aws --from-env
-    - run: docker --context=aws compose --file ${{ inputs.files }} up
+    - run: docker compose up
+      env:
+        DOCKER_CONTEXT: aws
