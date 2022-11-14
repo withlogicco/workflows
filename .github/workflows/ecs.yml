@@ -35,6 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       COMPOSE_FILE: ${{ inputs.files }}
+      STACK_FILE: /tmp/cf.yml
     steps:
     - uses: actions/checkout@v3
     - run: echo '${{ inputs.env }}' >> $GITHUB_ENV
@@ -49,6 +50,8 @@ jobs:
         registry: ${{ inputs.ecr-registry }}
     - uses: withlogicco/setup-compose-cli@v1
     - run: docker context create ecs aws --from-env
-    - run: docker compose up
+    - run: docker compose convert > ${{ env.STACK_FILE }}
       env:
         DOCKER_CONTEXT: aws
+    - run: aws cloudformation deploy --template-file ${{ env.STACK_FILE }} --stack-name $(basename $PWD) --capabilities CAPABILITY_IAM
+
