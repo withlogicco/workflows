@@ -50,7 +50,7 @@ jobs:
         registry: ${{ inputs.ecr-registry }}
     - uses: withlogicco/setup-compose-cli@v1
     - run: docker context create ecs aws --from-env
-    - run: docker compose convert -o ${{ env.STACK_FILE }}
+    - run: docker compose convert > ${{ env.STACK_FILE }}
       env:
         DOCKER_CONTEXT: aws
     - run: aws cloudformation deploy --template-file ${{ env.STACK_FILE }} --stack-name $(basename $PWD) --capabilities CAPABILITY_IAM
